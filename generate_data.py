@@ -30,7 +30,7 @@ total_awards_per_league = df.groupby("League")["Year"].count().to_dict()
 league_team_counts = df.groupby(["League", "Team"]).size().reset_index(name="Wins")
 league_team_counts["Total League Awards"] = league_team_counts["League"].map(total_awards_per_league)
 league_team_counts["Percentage of Total"] = (
-    league_team_counts["Wins"] / league_team_counts["Total_League_Awards"] * 100
+    league_team_counts["Wins"] / league_team_counts["Total League Awards"] * 100
 ).round(2)
 
 league_team_counts.to_csv("silver_slugger_by_league.csv", index=False)
@@ -39,7 +39,7 @@ for league in ["AL", "NL"]:
     league_df = league_team_counts[league_team_counts["League"] == league].sort_values("Wins", ascending=False).head(10)
 
     plt.figure(figsize=(10, 6))
-    plt.bar(league_df["Team"], league_df["Percentage_of_Total"])
+    plt.bar(league_df["Team"], league_df["Percentage of Total"])
     plt.xticks(rotation=45, ha="right")
     plt.title(f"{league} - Top 10 Teams: Silver Sluggers at Catcher")
     plt.xlabel("Team")
