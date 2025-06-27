@@ -28,8 +28,8 @@ df = pd.DataFrame(data)
 total_awards_per_league = df.groupby("League")["Year"].count().to_dict()
 
 league_team_counts = df.groupby(["League", "Team"]).size().reset_index(name="Wins")
-league_team_counts["Total_League_Awards"] = league_team_counts["League"].map(total_awards_per_league)
-league_team_counts["Percentage_of_Total"] = (
+league_team_counts["Total League Awards"] = league_team_counts["League"].map(total_awards_per_league)
+league_team_counts["Percentage of Total"] = (
     league_team_counts["Wins"] / league_team_counts["Total_League_Awards"] * 100
 ).round(2)
 
