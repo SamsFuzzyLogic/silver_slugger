@@ -6,48 +6,48 @@ import os
 st.set_page_config(page_title="Silver Slugger Awards at Catcher", layout="wide")
 st.title("🏆 Silver Slugger Awards at Catcher (AL & NL)")
 
-# Load data
+# Load both CSV files
 team_df = pd.read_csv("silver_slugger_by_league.csv")
 player_df = pd.read_csv("silver_slugger_by_player.csv")
-full_df = pd.read_csv("silver_slugger_by_league.csv")  # for year range
 
-# Extract year range
-df_all = pd.read_csv("silver_slugger_by_league.csv")
-year_min, year_max = df_all["Year"].astype(int).min(), df_all["Year"].astype(int).max()
-
-# League and view mode selectors
+# User selects league
 league = st.selectbox("Select League", ["AL", "NL"])
+
+# User selects view mode
 view_mode = st.radio("View by", ["Team", "Player"], horizontal=True)
 
-# Year range slider
-selected_years = st.slider("Select Year Range", year_min, year_max, (year_min, year_max))
-start_year, end_year = selected_years
+# Determine appropriate dataframe and image paths
+if view_mode == "Team":
+    display_df = team_df[team_df["League"] == league].sort_values("Wins", ascending=False).head(10)
+    bar_path = f"images/{league}_top_10_bar_chart.png"
+    pie_path = f"images/{league}_top_10_pie_chart.png"
+else:
+    display_df = player_df[player_df["League"] == league].sort_values("Wins", ascending=False).head(10)
+    bar_path = f"images/{league}_top_10_players_bar_chart.png"
+    pie_path = None  # no pie chart for players in this version
 
-# Apply year filtering
-df_source = team_df if view_mode == "Team" else player_df
-df_source["Year"] = df_source["Year"].astype(int)
-filtered_df = df_source[
-    (df_source["League"] == league) & 
-    (df_source["Year"] >= start_year) & 
-    (df_source["Year"] <= end_year)
-]
+# Layout: Bar chart and optional pie chart
+col1, col2 = st.columns(2)
 
-# Recalculate groupings
-group_field = "Team" if view_mode == "Team" else "Player"
-agg_df = filtered_df.groupby(group_field).size().reset_index(name="Wins")
-agg_df = agg_df.sort_values("Wins", ascending=False).head(10)
+with col1:
+    st.subheader("📊 Top 10 - Bar Chart")
+    if os.path.exists(bar_path):
+        st.image(Image.open(bar_path), use_container_width=True)
+    else:
+        st.write("Bar chart not found.")
 
-# Chart display
-st.subheader(f"Top 10 {view_mode}s ({start_year} - {end_year})")
-st.bar_chart(data=agg_df.set_index(group_field))
+with col2:
+    if view_mode == "Team" and pie_path and os.path.exists(pie_path):
+        st.subheader("🥧 Top 10 Teams - Pie Chart")
+        st.image(Image.open(pie_path), use_container_width=True)
+    else:
+        st.subheader("📋 Data Table")
+        st.dataframe(display_df.reset_index(drop=True))
 
-# Optional: add search
-search = st.text_input(f"Search for a {view_mode.lower()} name:")
-if search:
-    search_df = filtered_df[filtered_df[group_field].str.contains(search, case=False, na=False)]
-    st.subheader(f"Search Results for '{search}'")
-    st.dataframe(search_df)
-
-# Show full breakdown
-st.subheader("📋 Award Breakdown")
-st.dataframe(agg_df.reset_index(drop=True))
+# Show data table below charts as well
+if view_mode == "Team" and not pie_path:
+    st.subheader("📋 Award Breakdown")
+    st.dataframe(display_df.reset_index(drop=True))
+elif view_mode == "Player":
+    st.subheader("📋 Player Award Breakdown")
+    st.dataframe(display_df.reset_index(drop=True))
