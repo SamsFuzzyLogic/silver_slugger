@@ -48,4 +48,7 @@ if search:
 
 # Final table
 st.subheader("Award Breakdown")
-st.dataframe(agg_df.reset_index(drop=True))
+agg_df_display = agg_df.reset_index(drop=True)
+agg_df_display.index = [""] * len(agg_df_display)
+st.dataframe(agg_df_display)
+
