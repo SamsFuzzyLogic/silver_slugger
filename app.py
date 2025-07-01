@@ -44,7 +44,7 @@ search = st.text_input(f"Search {view_mode}s:")
 if search:
     result_df = filtered_df[filtered_df[group_field].str.contains(search, case=False, na=False)]
     st.subheader(f"Results for '{search}'")
-    st.dataframe(result_df)
+    st.dataframe(result_df.reset_index(drop=True))
 
 # Final table
 st.subheader("Award Breakdown")
