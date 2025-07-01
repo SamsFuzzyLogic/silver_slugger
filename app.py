@@ -47,5 +47,5 @@ if search:
     st.dataframe(result_df)
 
 # Final table
-st.subheader("📋 Award Breakdown")
+st.subheader("Award Breakdown")
 st.dataframe(agg_df.reset_index(drop=True))
